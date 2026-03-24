@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -13,9 +13,10 @@
             --neon: #00ff88;
             --glass: rgba(7, 51, 34, 0.25);
             --text: #ffffff;
+            /* متغير جديد للتحكم في المسافة بين البطاقات */
+            --section-gap: 50px; 
         }
 
-        /* The 'Void' Killer: This fills the gap when pulling down */
         html {
             background-color: var(--top-green);
             margin: 0;
@@ -23,7 +24,6 @@
         }
 
         body {
-            /* The modern 'little by little' fade */
             background: linear-gradient(180deg, 
                 var(--top-green) 0%, 
                 var(--bg-black) 40dvh, 
@@ -63,8 +63,7 @@
             max-width: 450px;
             margin: 0 auto;
             padding: 40px 20px;
-            /* Room for the iOS 'notch' area */
-            padding-top: calc(40px + env(safe-area-inset-top));
+            padding-top: calc(50px + env(safe-area-inset-top));
         }
 
         .reveal {
@@ -82,7 +81,11 @@
             transform: translate(0, 0) !important;
         }
 
-        header { text-align: center; margin-bottom: 40px; }
+        header { 
+            text-align: center; 
+            margin-bottom: 60px; /* زيادة المسافة تحت الهيدر */
+        }
+
         .pfp {
             width: 110px; height: 110px;
             border-radius: 50%;
@@ -101,7 +104,8 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 24px;
             padding: 22px;
-            margin-bottom: 25px;
+            /* التعديل المطلوب: زيادة المسافة بين القوائم */
+            margin-bottom: var(--section-gap); 
         }
 
         .section-title {
@@ -112,6 +116,7 @@
             margin-bottom: 18px;
             display: block;
             font-weight: 700;
+            text-align: right;
         }
 
         .btn {
@@ -124,11 +129,18 @@
             border-radius: 16px;
             color: #fff;
             text-decoration: none;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             transition: 0.3s;
         }
 
-        .btn:hover { background: rgba(0, 255, 136, 0.1); border-color: var(--neon); }
+        .btn:hover { 
+            background: rgba(0, 255, 136, 0.1); 
+            border-color: var(--neon); 
+            transform: translateY(-2px);
+        }
+
+        /* لضمان اتجاه السهم بشكل صحيح في النسخة العربية */
+        .btn i { font-style: normal; transform: scaleX(-1); }
 
         .stats-row {
             display: grid;
@@ -149,9 +161,9 @@
 
         footer {
             text-align: center;
-            padding: 40px;
+            padding: 60px 40px;
             font-size: 0.7rem;
-            color: #333;
+            color: #444;
             letter-spacing: 3px;
             font-weight: 800;
         }
@@ -171,9 +183,9 @@
 
         <div class="section-card reveal from-left">
             <span class="section-title">Projects</span>
-            <a href="https://vt.tiktok.com/ZSu7kPJFP/" target="_blank" class="btn"><span>CPU ON MINECRAFT</span><i>→</i></a>
-            <a href="https://vt.tiktok.com/ZSu7kGJQj/" target="_blank" class="btn"><span>16-BITS CALCULATOR</span><i>→</i></a>
-            <a href="https://vt.tiktok.com/ZSu7kcQMg/" target="_blank" class="btn"><span>8-BITS CALCULATOR</span><i>→</i></a>
+            <a href="https://vt.tiktok.com/ZSu7kPJFP/" target="_blank" class="btn"><span>CPU ON MINECRAFT</span><i>←</i></a>
+            <a href="https://vt.tiktok.com/ZSu7kGJQj/" target="_blank" class="btn"><span>16-BITS CALCULATOR</span><i>←</i></a>
+            <a href="https://vt.tiktok.com/ZSu7kcQMg/" target="_blank" class="btn"><span>8-BITS CALCULATOR</span><i>←</i></a>
         </div>
 
         <div class="section-card reveal from-right">
@@ -190,7 +202,7 @@
                 <div class="stat-item"><span class="stat-num">48</span><span class="stat-label">Manga</span></div>
                 <div class="stat-item"><span class="stat-num">2.5k</span><span class="stat-label">Chapters</span></div>
             </div>
-            <a href="https://anilist.co/user/samrgy/animelist" target="_blank" class="btn" style="background: var(--neon); color: #000; border: none; justify-content: center;">
+            <a href="https://anilist.co/user/samrgy/animelist" target="_blank" class="btn" style="background: var(--neon); color: #000; border: none; justify-content: center; margin-bottom: 0;">
                 <span style="font-weight: 800;">VIEW TRACKER</span>
             </a>
         </div>
@@ -213,13 +225,12 @@
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
                 } else {
-                    // Stricter check: Only remove if fully out of view
                     if (rect.top > window.innerHeight || rect.bottom < 0) {
                         entry.target.classList.remove('active');
                     }
                 }
             });
-        }, { threshold: 0.15 });
+        }, { threshold: 0.1 });
 
         document.querySelectorAll('.reveal').forEach((el) => { observer.observe(el); });
     </script>
