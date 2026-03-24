@@ -3,41 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#073322">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>saammrgy | Hub</title>
     <style>
         :root {
-            --bg: #000000;
-            --deep-green: #073322;
+            --top-green: #073322;
+            --bg-black: #000000;
             --neon: #00ff88;
             --glass: rgba(7, 51, 34, 0.25);
             --text: #ffffff;
         }
 
-        /* FIXED: This color fills the "black gap" when you pull down */
+        /* The 'Void' Killer: This fills the gap when pulling down */
         html {
-            background-color: var(--deep-green);
+            background-color: var(--top-green);
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background-color: var(--bg);
+            /* The modern 'little by little' fade */
+            background: linear-gradient(180deg, 
+                var(--top-green) 0%, 
+                var(--bg-black) 40dvh, 
+                var(--bg-black) 100%);
+            background-attachment: fixed;
             margin: 0;
             padding: 0;
             color: var(--text);
             font-family: 'Inter', -apple-system, sans-serif;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% -10%, var(--deep-green), transparent 85%);
-            background-attachment: fixed;
             min-height: 100dvh;
         }
 
-        /* LOADER: Now covers the dynamic viewport height */
         #loader {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100dvh;
-            background: var(--bg);
+            background: var(--bg-black);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -58,21 +62,20 @@
         .container {
             max-width: 450px;
             margin: 0 auto;
-            padding: 60px 20px;
-            /* Extra padding at top so pull-to-refresh has room */
-            padding-top: calc(60px + env(safe-area-inset-top));
+            padding: 40px 20px;
+            /* Room for the iOS 'notch' area */
+            padding-top: calc(40px + env(safe-area-inset-top));
         }
 
-        /* Animation States */
         .reveal {
             opacity: 0;
             transition: all 0.8s cubic-bezier(0.33, 1, 0.68, 1);
             will-change: transform, opacity;
         }
 
-        .from-left { transform: translateX(-60px); }
-        .from-right { transform: translateX(60px); }
-        .from-bottom { transform: translateY(40px); }
+        .from-left { transform: translateX(-50px); }
+        .from-right { transform: translateX(50px); }
+        .from-bottom { transform: translateY(30px); }
 
         .reveal.active {
             opacity: 1;
@@ -81,32 +84,32 @@
 
         header { text-align: center; margin-bottom: 40px; }
         .pfp {
-            width: 120px; height: 120px;
+            width: 110px; height: 110px;
             border-radius: 50%;
             border: 2px solid var(--neon);
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
             object-fit: cover;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        h1 { font-size: 2.8rem; letter-spacing: -2px; margin: 0; font-weight: 800; }
+        h1 { font-size: 2.6rem; letter-spacing: -2px; margin: 0; font-weight: 800; }
 
         .section-card {
             background: var(--glass);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 28px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 22px;
             margin-bottom: 25px;
         }
 
         .section-title {
             color: var(--neon);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 20px;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
             display: block;
             font-weight: 700;
         }
@@ -115,41 +118,41 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 18px 22px;
-            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 20px;
+            border-radius: 16px;
             color: #fff;
             text-decoration: none;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             transition: 0.3s;
         }
 
-        .btn:hover { background: var(--deep-green); border-color: var(--neon); }
+        .btn:hover { background: rgba(0, 255, 136, 0.1); border-color: var(--neon); }
 
         .stats-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 18px;
         }
 
         .stat-item {
             text-align: center;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px 5px;
-            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 5px;
+            border-radius: 16px;
         }
 
-        .stat-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--neon); }
-        .stat-label { font-size: 0.65rem; color: #888; text-transform: uppercase; }
+        .stat-num { display: block; font-size: 1.2rem; font-weight: 800; color: var(--neon); }
+        .stat-label { font-size: 0.6rem; color: #777; text-transform: uppercase; }
 
         footer {
             text-align: center;
             padding: 40px;
-            font-size: 0.75rem;
-            color: #444;
-            letter-spacing: 4px;
+            font-size: 0.7rem;
+            color: #333;
+            letter-spacing: 3px;
             font-weight: 800;
         }
     </style>
@@ -174,21 +177,21 @@
         </div>
 
         <div class="section-card reveal from-right">
-            <span class="section-title">Instagram</span>
+            <span class="section-title">Instagram Content</span>
             <a href="https://www.instagram.com/p/DBodLZhg4T3/" target="_blank" class="btn"><span>boys abyss</span><i>📸</i></a>
             <a href="https://www.instagram.com/p/C-_QNm3ALx7/" target="_blank" class="btn"><span>goodnight punpun</span><i>📸</i></a>
-            <a href="https://www.instagram.com/saammrgy/" target="_blank" class="btn"><span>view profile</span><i>🔗</i></a>
+            <a href="https://www.instagram.com/saammrgy/" target="_blank" class="btn"><span>full profile</span><i>🔗</i></a>
         </div>
 
         <div class="section-card reveal from-bottom">
-            <span class="section-title">Anilist Status</span>
+            <span class="section-title">AniList Database</span>
             <div class="stats-row">
                 <div class="stat-item"><span class="stat-num">112</span><span class="stat-label">Anime</span></div>
                 <div class="stat-item"><span class="stat-num">48</span><span class="stat-label">Manga</span></div>
                 <div class="stat-item"><span class="stat-num">2.5k</span><span class="stat-label">Chapters</span></div>
             </div>
             <a href="https://anilist.co/user/samrgy/animelist" target="_blank" class="btn" style="background: var(--neon); color: #000; border: none; justify-content: center;">
-                <span style="font-weight: 800;">OPEN DATABASE</span>
+                <span style="font-weight: 800;">VIEW TRACKER</span>
             </a>
         </div>
 
@@ -198,28 +201,25 @@
     </div>
 
     <script>
-        // Smooth loader exit
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             loader.style.opacity = '0';
             setTimeout(() => { loader.style.visibility = 'hidden'; }, 500);
         });
 
-        // Fixed Apple-style Bidirectional Reveal
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const rect = entry.target.getBoundingClientRect();
-                
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
                 } else {
-                    // Only reset if completely off-screen (fixes slow scroll bug)
+                    // Stricter check: Only remove if fully out of view
                     if (rect.top > window.innerHeight || rect.bottom < 0) {
-                         entry.target.classList.remove('active');
+                        entry.target.classList.remove('active');
                     }
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.15 });
 
         document.querySelectorAll('.reveal').forEach((el) => { observer.observe(el); });
     </script>
