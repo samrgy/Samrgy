@@ -15,7 +15,6 @@
             --text: #ffffff;
         }
 
-        /* The 'Void' Killer: This fills the gap when pulling down */
         html {
             background-color: var(--top-green);
             margin: 0;
@@ -23,7 +22,6 @@
         }
 
         body {
-            /* The modern 'little by little' fade */
             background: linear-gradient(180deg, 
                 var(--top-green) 0%, 
                 var(--bg-black) 40dvh, 
@@ -63,7 +61,6 @@
             max-width: 450px;
             margin: 0 auto;
             padding: 40px 20px;
-            /* Room for the iOS 'notch' area */
             padding-top: calc(40px + env(safe-area-inset-top));
         }
 
@@ -130,22 +127,24 @@
 
         .btn:hover { background: rgba(0, 255, 136, 0.1); border-color: var(--neon); }
 
+        /* UPDATED: 2x2 Grid Layout */
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-bottom: 18px;
         }
 
         .stat-item {
             text-align: center;
             background: rgba(0, 0, 0, 0.25);
-            padding: 12px 5px;
+            padding: 15px 5px;
             border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
         }
 
-        .stat-num { display: block; font-size: 1.2rem; font-weight: 800; color: var(--neon); }
-        .stat-label { font-size: 0.6rem; color: #777; text-transform: uppercase; }
+        .stat-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--neon); }
+        .stat-label { font-size: 0.65rem; color: #777; text-transform: uppercase; letter-spacing: 1px; }
 
         footer {
             text-align: center;
@@ -186,13 +185,26 @@
         <div class="section-card reveal from-bottom">
             <span class="section-title">AniList Database</span>
             <div class="stats-row">
-                <div class="stat-item"><span class="stat-num">124</span><span class="stat-label">Anime</span></div>
-                <div class="stat-item"><span class="stat-num">1602</span><span class="stat-label">Total Episodes</span></div>
+                <div class="stat-item">
+                    <span class="stat-num">124</span>
+                    <span class="stat-label">Anime</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">1602</span>
+                    <span class="stat-label">Episodes</span>
+                </div>
                 
-                <div class="stat-item"><span class="stat-num">23</span><span class="stat-label">Manga</span></div>
-                <div class="stat-item"><span class="stat-num">1078</span><span class="stat-label">Chapters</span></div>
+                <div class="stat-item">
+                    <span class="stat-num">23</span>
+                    <span class="stat-label">Manga</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">1078</span>
+                    <span class="stat-label">Chapters</span>
+                </div>
             </div>
-            <a href="https://anilist.co/user/samrgy/animelist" target="_blank" class="btn" style="background: var(--neon); color: #000; border: none; justify-content: center;">
+            
+            <a href="https://anilist.co/user/samrgy/animelist" target="_blank" class="btn" style="background: var(--neon); color: #000; border: none; justify-content: center; margin-bottom: 0;">
                 <span style="font-weight: 800;">VIEW TRACKER</span>
             </a>
         </div>
@@ -215,7 +227,6 @@
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
                 } else {
-                    // Stricter check: Only remove if fully out of view
                     if (rect.top > window.innerHeight || rect.bottom < 0) {
                         entry.target.classList.remove('active');
                     }
