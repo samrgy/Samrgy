@@ -5,204 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#073322">
     <title>saammrgy | Hub</title>
-    <!-- Firebase SDKs (modular) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-        // 🔥 إعدادات Firebase الخاصة بك (تم استبدالها بالبيانات الصحيحة)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAPWqc7xA8Hh-PnxoX978RUeil6Nk3Oh4Q",
-            authDomain: "samr-messasges.firebaseapp.com",
-            projectId: "samr-messasges",
-            storageBucket: "samr-messasges.firebasestorage.app",
-            messagingSenderId: "655939072611",
-            appId: "1:655939072611:web:60234247efa2cdefc07e56",
-            measurementId: "G-F3LWZ5NMYE"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const messagesRef = collection(db, "messages");
-        const messagesQuery = query(messagesRef, orderBy("timestamp", "desc"));
-
-        // 🔐 كلمة المرور للحذف (غيرها كما تشاء)
-        const ADMIN_PASSWORD = "samr2025";
-
-        let messagesArray = [];
-
-        // الاستماع للتحديثات المباشرة من Firebase
-        function subscribeToMessages() {
-            onSnapshot(messagesQuery, (snapshot) => {
-                messagesArray = [];
-                snapshot.forEach(docSnap => {
-                    messagesArray.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                renderMessageBoard();
-            });
-        }
-
-        // إضافة رسالة جديدة
-        async function addMessage(name, message) {
-            if (!name.trim() || !message.trim()) return false;
-            try {
-                await addDoc(messagesRef, {
-                    name: name.trim(),
-                    message: message.trim(),
-                    date: new Date().toLocaleString(),
-                    timestamp: new Date()
-                });
-                return true;
-            } catch (error) {
-                console.error("Error adding message: ", error);
-                return false;
-            }
-        }
-
-        // حذف رسالة (يتطلب كلمة المرور)
-        async function deleteMessageById(id) {
-            const password = prompt("🔐 Admin verification required to delete this message:");
-            if (password === ADMIN_PASSWORD) {
-                try {
-                    await deleteDoc(doc(db, "messages", id));
-                    showToast("🗑️ Message deleted", "#ff8a8a");
-                } catch (error) {
-                    console.error("Delete failed: ", error);
-                    showToast("❌ Delete failed", "#ff6666");
-                }
-            } else if (password !== null) {
-                showToast("❌ Wrong password. Deletion denied.", "#ff6666");
-            }
-        }
-
-        // عرض الرسائل في الواجهة
-        function renderMessageBoard() {
-            const container = document.getElementById("messageListContainer");
-            if (!container) return;
-            if (messagesArray.length === 0) {
-                container.innerHTML = `<div class="empty-messages">💬 لا رسائل بعد... كن أول من يكتب رسالة لسامر</div>`;
-                return;
-            }
-            let html = "";
-            messagesArray.forEach(msg => {
-                html += `
-                    <div class="message-card">
-                        <div class="msg-name">
-                            <span>💠 ${escapeHtml(msg.name)}</span>
-                            <button class="delete-msg" data-id="${msg.id}">🗑️</button>
-                        </div>
-                        <div class="msg-text">${escapeHtml(msg.message)}</div>
-                        <div class="msg-date">📅 ${escapeHtml(msg.date)}</div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-            document.querySelectorAll('.delete-msg').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const id = btn.getAttribute('data-id');
-                    if (id) deleteMessageById(id);
-                });
-            });
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        function showToast(text, bgColor = "#00ff88") {
-            const toast = document.getElementById("toastNotif");
-            toast.style.backgroundColor = bgColor;
-            toast.innerText = text;
-            toast.style.opacity = "1";
-            setTimeout(() => toast.style.opacity = "0", 1800);
-        }
-
-        // ربط الأحداث
-        window.addEventListener("load", () => {
-            subscribeToMessages();
-
-            // modal logic
-            const modal = document.getElementById("messageModal");
-            const nameInput = document.getElementById("senderName");
-            const msgInput = document.getElementById("senderMsg");
-            const submitBtn = document.getElementById("submitMsgBtn");
-            const cancelBtn = document.getElementById("cancelModalBtn");
-            const globalSend = document.getElementById("globalSendBtn");
-            const secondarySend = document.getElementById("secondarySendBtn");
-
-            function openModal() {
-                nameInput.value = "";
-                msgInput.value = "";
-                modal.classList.add("active");
-            }
-            function closeModal() { modal.classList.remove("active"); }
-
-            async function handleSend() {
-                const name = nameInput.value.trim();
-                const msg = msgInput.value.trim();
-                if (!name || !msg) {
-                    showToast("⚠️ Both name and message are required", "#ff8866");
-                    return;
-                }
-                const success = await addMessage(name, msg);
-                if (success) {
-                    showToast("✓ Sent to samr's void", "#00ff88");
-                    closeModal();
-                } else {
-                    showToast("❌ Failed to send", "#ff6666");
-                }
-            }
-
-            submitBtn.addEventListener("click", handleSend);
-            globalSend.addEventListener("click", openModal);
-            if (secondarySend) secondarySend.addEventListener("click", openModal);
-            cancelBtn.addEventListener("click", closeModal);
-            modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
-
-            // navigation
-            const mainPage = document.getElementById("mainPage");
-            const secondaryPage = document.getElementById("secondaryPage");
-            const navBtns = document.querySelectorAll(".nav-btn");
-            function setActivePage(pageId) {
-                if (pageId === "main") {
-                    mainPage.classList.remove("hidden-page");
-                    secondaryPage.classList.add("hidden-page");
-                } else {
-                    mainPage.classList.add("hidden-page");
-                    secondaryPage.classList.remove("hidden-page");
-                }
-                navBtns.forEach(btn => {
-                    const val = btn.getAttribute("data-page");
-                    if (val === pageId) btn.classList.add("active");
-                    else btn.classList.remove("active");
-                });
-            }
-            navBtns.forEach(btn => {
-                btn.addEventListener("click", () => setActivePage(btn.getAttribute("data-page")));
-            });
-            setActivePage("main");
-
-            // reveal animations
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add("active");
-                });
-            }, { threshold: 0.15 });
-            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-            // loader hide
-            const loader = document.getElementById("loader");
-            loader.style.opacity = "0";
-            setTimeout(() => loader.style.visibility = "hidden", 500);
-        });
-    </script>
     <style>
         :root {
             --top-green: #073322;
@@ -518,7 +320,7 @@
             <div class="nav-btn active" data-page="main">MAIN PAGE</div>
             <div class="nav-btn" data-page="secondary">SECONDARY PAGE</div>
         </div>
-        <div class="send-samr-btn" id="globalSendBtn">✉️ send samr a message ✨</div>
+        <div class="send-samr-btn" id="globalSendBtn">✉️ recommend samr an anime/manga ✨</div>
         <div id="mainPage" class="page">
             <div class="section-card reveal from-left">
                 <span class="section-title">Projects</span>
@@ -547,31 +349,230 @@
         <div id="secondaryPage" class="page hidden-page">
             <div class="section-card" style="padding: 20px;">
                 <div class="messages-header">
-                    <span class="messages-title">📬 رسايل ل سامر</span>
-                    <button class="secondary-send-btn" id="secondarySendBtn">+ إرسال رسالة</button>
+                    <span class="messages-title">📬 recommendations for samr</span>
+                    <button class="secondary-send-btn" id="secondarySendBtn">+ send recommendation</button>
                 </div>
                 <div id="messageListContainer" class="message-list">
-                    <div class="empty-messages">✨ جاري التحميل...</div>
+                    <div class="empty-messages">✨ loading recommendations...</div>
                 </div>
             </div>
         </div>
-        <footer>MADE BY SAAMMRGY // ECHO VOID</footer>
+        <footer>MADE BY SAAMMRGY</footer>
     </div>
+
+    <!-- Modal -->
     <div id="messageModal" class="modal-overlay">
         <div class="modal-container">
-            <h3>✍️ سامر يستمع</h3>
+            <h3>✨ recommend samr an anime/manga</h3>
             <div class="input-group">
                 <input type="text" id="senderName" placeholder="your name" autocomplete="off">
             </div>
             <div class="input-group">
-                <textarea id="senderMsg" placeholder="write your message for samr..."></textarea>
+                <textarea id="senderMsg" placeholder="write your recommendation (title, why you like it, etc.)"></textarea>
             </div>
             <div class="modal-actions">
-                <button class="modal-submit" id="submitMsgBtn">إرسال →</button>
-                <button class="modal-cancel" id="cancelModalBtn">إلغاء</button>
+                <button class="modal-submit" id="submitMsgBtn">send →</button>
+                <button class="modal-cancel" id="cancelModalBtn">cancel</button>
             </div>
         </div>
     </div>
-    <div id="toastNotif" class="toast-msg">✨ message sent</div>
+    <div id="toastNotif" class="toast-msg">✨ recommendation sent</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        // Firebase config (provided by user)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPWqc7xA8Hh-PnxoX978RUeil6Nk3Oh4Q",
+            authDomain: "samr-messasges.firebaseapp.com",
+            projectId: "samr-messasges",
+            storageBucket: "samr-messasges.firebasestorage.app",
+            messagingSenderId: "655939072611",
+            appId: "1:655939072611:web:60234247efa2cdefc07e56",
+            measurementId: "G-F3LWZ5NMYE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const messagesRef = collection(db, "messages");
+        const messagesQuery = query(messagesRef, orderBy("timestamp", "desc"));
+
+        const ADMIN_PASSWORD = "samr2025"; // change as you like
+
+        let messagesArray = [];
+
+        function subscribeToMessages() {
+            onSnapshot(messagesQuery, (snapshot) => {
+                messagesArray = [];
+                snapshot.forEach(docSnap => {
+                    messagesArray.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderMessageBoard();
+            }, (error) => {
+                console.error("Firestore error:", error);
+                document.getElementById("messageListContainer").innerHTML = `<div class="empty-messages">⚠️ Error loading messages. Make sure Firestore is enabled in test mode.</div>`;
+            });
+        }
+
+        async function addMessage(name, message) {
+            if (!name.trim() || !message.trim()) return false;
+            try {
+                await addDoc(messagesRef, {
+                    name: name.trim(),
+                    message: message.trim(),
+                    date: new Date().toLocaleString(),
+                    timestamp: new Date()
+                });
+                return true;
+            } catch (error) {
+                console.error("Add message error:", error);
+                return false;
+            }
+        }
+
+        async function deleteMessageById(id) {
+            const password = prompt("🔐 Admin verification required to delete this message:");
+            if (password === ADMIN_PASSWORD) {
+                try {
+                    await deleteDoc(doc(db, "messages", id));
+                    showToast("🗑️ Message deleted", "#ff8a8a");
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    showToast("❌ Delete failed", "#ff6666");
+                }
+            } else if (password !== null) {
+                showToast("❌ Wrong password. Deletion denied.", "#ff6666");
+            }
+        }
+
+        function renderMessageBoard() {
+            const container = document.getElementById("messageListContainer");
+            if (!container) return;
+            if (messagesArray.length === 0) {
+                container.innerHTML = `<div class="empty-messages">💬 no recommendations yet — be the first to suggest something</div>`;
+                return;
+            }
+            let html = "";
+            messagesArray.forEach(msg => {
+                html += `
+                    <div class="message-card">
+                        <div class="msg-name">
+                            <span>💠 ${escapeHtml(msg.name)}</span>
+                            <button class="delete-msg" data-id="${msg.id}">🗑️</button>
+                        </div>
+                        <div class="msg-text">${escapeHtml(msg.message)}</div>
+                        <div class="msg-date">📅 ${escapeHtml(msg.date)}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.querySelectorAll('.delete-msg').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    if (id) deleteMessageById(id);
+                });
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function showToast(text, bgColor = "#00ff88") {
+            const toast = document.getElementById("toastNotif");
+            toast.style.backgroundColor = bgColor;
+            toast.innerText = text;
+            toast.style.opacity = "1";
+            setTimeout(() => toast.style.opacity = "0", 1800);
+        }
+
+        // DOM elements
+        const modal = document.getElementById("messageModal");
+        const nameInput = document.getElementById("senderName");
+        const msgInput = document.getElementById("senderMsg");
+        const submitBtn = document.getElementById("submitMsgBtn");
+        const cancelBtn = document.getElementById("cancelModalBtn");
+        const globalSend = document.getElementById("globalSendBtn");
+        const secondarySend = document.getElementById("secondarySendBtn");
+
+        function openModal() {
+            nameInput.value = "";
+            msgInput.value = "";
+            modal.classList.add("active");
+        }
+        function closeModal() { modal.classList.remove("active"); }
+
+        async function handleSend() {
+            const name = nameInput.value.trim();
+            const msg = msgInput.value.trim();
+            if (!name || !msg) {
+                showToast("⚠️ Both name and recommendation are required", "#ff8866");
+                return;
+            }
+            const success = await addMessage(name, msg);
+            if (success) {
+                showToast("✓ Recommendation sent to samr", "#00ff88");
+                closeModal();
+            } else {
+                showToast("❌ Failed to send. Check Firestore permissions.", "#ff6666");
+            }
+        }
+
+        submitBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            handleSend();
+        });
+        globalSend.addEventListener("click", openModal);
+        if (secondarySend) secondarySend.addEventListener("click", openModal);
+        cancelBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+        // navigation
+        const mainPage = document.getElementById("mainPage");
+        const secondaryPage = document.getElementById("secondaryPage");
+        const navBtns = document.querySelectorAll(".nav-btn");
+        function setActivePage(pageId) {
+            if (pageId === "main") {
+                mainPage.classList.remove("hidden-page");
+                secondaryPage.classList.add("hidden-page");
+            } else {
+                mainPage.classList.add("hidden-page");
+                secondaryPage.classList.remove("hidden-page");
+            }
+            navBtns.forEach(btn => {
+                const val = btn.getAttribute("data-page");
+                if (val === pageId) btn.classList.add("active");
+                else btn.classList.remove("active");
+            });
+        }
+        navBtns.forEach(btn => {
+            btn.addEventListener("click", () => setActivePage(btn.getAttribute("data-page")));
+        });
+        setActivePage("main");
+
+        // reveal animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add("active");
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // start Firebase listener and hide loader
+        window.addEventListener("load", () => {
+            subscribeToMessages();
+            const loader = document.getElementById("loader");
+            loader.style.opacity = "0";
+            setTimeout(() => loader.style.visibility = "hidden", 500);
+        });
+    </script>
 </body>
 </html>
